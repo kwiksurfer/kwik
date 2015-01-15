@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+<p><a href="{% url all_users %}">All Users</a></p>
+<h1>{{ page_title }}</h1>
+<table>
+    <tr>
+        <td>Username:</td><td>{{ user.username }}</td>
+    </tr>
+    <tr>
+        <td>First Name:</td><td>{{ user.first_name }}</td>
+    </tr>
+    <tr>
+        <td>Last Name:</td><td>{{ user.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Email Address:</td><td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <td>Friends:</td>
+        <td>
+            {% for friend in friends_list %}
+                <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
+            {% endfor %}
+            {% for friend in friends_list2 %}
+                <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+</body>
+</html>
