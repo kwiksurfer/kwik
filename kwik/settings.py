@@ -114,7 +114,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 
-    'D:/projects/kwik/templates/',
+    '/home/kwik/templates/',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
