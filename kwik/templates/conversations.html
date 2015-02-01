@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+<h1>{{ page_title }}</h1>
+<table>
+    {% for conversation in conversations %}
+    <tr>{% comment %} change this to "conversation between you and <a href>somebody</a>"{% endcomment %}
+        <td>Conversation among {% for each_user in conversation.users.all %}<a href="{% url view_user user_id=each_user.id %}">{{ each_user.get_profile.full_name }}</a>{% endfor %}</td>
+        <td><a href="{{ conversation.get_absolute_url }}">view</a></td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

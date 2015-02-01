@@ -4,12 +4,14 @@
 </head>
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>You made a mistake. Please try again.</p>
 {% endif %}
 
 <form method="post" action=".">
 {% csrf_token %}
 <table>
+{{ form.as_table }}
+{% comment %}
 <tr>
     <td>{{ form.username.label_tag }}</td>
     <td>{{ form.username }}</td>
@@ -18,10 +20,9 @@
     <td>{{ form.password.label_tag }}</td>
     <td>{{ form.password }}</td>
 </tr>
+{% endcomment %}
 </table>
-
 <input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
-<a href="{% url register %}">Sign Up</a>
 </html>

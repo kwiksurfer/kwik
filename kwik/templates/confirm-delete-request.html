@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>{{ page_title }}</title>
+</head>
+
+{% if form.errors %}
+<p>You made a mistake. Please try again.</p>
+{% endif %}
+
+<form method="post" action="{% url delete_request request_id=request_id initiator_id=initiator_id %}">
+{% csrf_token %}
+<table>
+<input type="hidden" name="request_id" value="{{ request_id }}" />
+</table>
+<input type="submit" value="confirm" />
+</form>
+</html>

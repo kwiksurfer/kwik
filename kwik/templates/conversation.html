@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+<h1>{{ page_title }}</h1>
+
+<p><b>New Message</b></p>
+{% if form.errors %}
+<p>You made a mistake. Please try again.</p>
+{% endif %}
+<form method="post" action="{% url conversation correspondent_id=correspondent_id %}">
+{% csrf_token %}
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="send" />
+</form>
+
+<table>
+    {% for message in messages %}
+    <tr>
+        <td>From <a href="{{ message.sender.get_absolute_url }}">{{ message.sender }}</a></td>
+        <td>To {% for each_user in conversation.users.all %}{% if each_user != message.sender %}<a href="{{ each_user.get_absolute_url }}">{{ each_user }}</a>{% endif %}{% endfor %} </td>
+        <td>{{ message.message }}</td>
+        <td>Sent on: {{ message.date_sent }}</td>
+        <td>Read: {% if message.seen == True %}Y{% else %}N{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

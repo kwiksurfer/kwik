@@ -7,12 +7,14 @@
 <body>
 <h1>{{ page_title }}</h1>
 <table>
-    {% for user in all_users %}
+    {% for this_user in users %}
     <tr>
-        <td>{{ user.user.first_name }} {{ user.user.last_name }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.sex }}</td>
-        <td>{{ user.email }}</td>
+        <td>{{ this_user.user.first_name }} {{ this_user.user.last_name }}</td>
+        <td><a href="{% url view_user this_user.id %}">View User</a></td>
+        <td>{% if this_user in user.friends %}Friend{% else %}Not Friend{% endif %}</td>
+        <td>{{ this_user.username }}</td>
+        <td>{{ this_user.sex }}</td>
+        <td>{{ this_user.email }}</td>
     </tr>
     {% endfor %}
 </table>

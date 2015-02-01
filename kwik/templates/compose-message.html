@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>{{ page_title }}</title>
+</head>
+
+{% if form.errors %}
+<p>You made a mistake. Please try again.</p>
+{% endif %}
+
+<form method="post" action="{% url new_message receiver_id=receiver_id %}">
+{% csrf_token %}
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="send" />
+</form>
+</html>

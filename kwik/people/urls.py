@@ -7,16 +7,26 @@ admin.autodiscover()
 urlpatterns = patterns('people.views',
     # Examples:
 
-    (r'^profile/$', 'view_profile'),
-    (r'^view_user/(?P<user_id>[-\w]+)/$', 'view_user'),
+    url(r'^profile/$', 'view_profile', {}, 'view_profile'),
+    url(r'^profile/$', 'view_profile', {}, 'my_profile'),
+    (r'^view_user/(?P<user_id>[-\w]+)/$', 'view_user', {}, 'view_user'),
+    (r'^users/(?P<username>[-\w]+)/$', 'view_user', {}, 'view_user_username'),
     (r'^all_users/$', 'all_users', {'template_name': 'users_list.html'}, 'all_users'),   # just a test
+    (r'^accounts/register/$', 'register', {}, 'register'),
+    (r'^edit_profile/$', 'edit_profile', {}, 'edit_profile'),
+    url(r'^add_friend/(?P<acceptor_id>[-\w]+)/$', 'add_friend', {}, 'add_friend'),
+    url(r'^confirm_request/(?P<request_id>[-\w]+)/(?P<initiator_id>[-\w]+)/$', 'confirm_request', {}, 'confirm_request'),
+    url(r'^delete_request/(?P<request_id>[-\w]+)/(?P<initiator_id>[-\w]+)/$', 'delete_request', {}, 'delete_request'),
+    url(r'^view_requests/$', 'view_requests', {}, 'view_requests'),
 
     # url(r'^verify_user/(?P<user_id>[-\w]+)/(?P<passcode>[-\w]+)$', 'verify_user'),
     # url(r'^messages/$', 'all_messages'),
     # url(r'^messages/(?P<correspondent_id>[-\w]+)/$', 'user_messages'),
-    # url(r'^new_message/(?P<receiver_id>[-\w]+)/$', 'new_message'),
-    # url(r'^new_message/$', 'new_message'),
-    #
+    url(r'^new_message/(?P<receiver_id>[-\w]+)/$', 'new_message', {}, 'new_message'),
+    url(r'^new_message/$', 'new_message', {}, 'new_message'),
+
+    url(r'^conversation/(?P<correspondent_id>[-\w]+)/$', 'conversation', {}, 'conversation'),
+    url(r'^conversations/$', 'conversations', {}, 'conversations'),
     # url(r'^groups/$', 'user_groups'),
     # url(r'^all_groups/$', 'all_groups'), # for starters
     # url(r'^create_group/$', 'create_group'),
