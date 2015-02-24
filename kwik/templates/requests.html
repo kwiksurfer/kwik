@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+<h1>{{ page_title }}</h1>
+<p>{% if message %}{{ message }}{% endif %}</p>
+<table>
+    {% for request in requests %}
+    <tr>
+        <td>From <a href="{% url view_user user_id=request.initiator.id %}">{{ request.initiator }}</a></td>
+        <td><a href="{% url confirm_request request_id=request.id initiator_id=request.initiator.id %}">Confirm</a></td>
+        <td><a href="{% url delete_request request_id=request.id initiator_id=request.initiator.id %}">Delete</a></td>
+    </tr>
+    {% empty %}
+    <tr><td>No Friend Requests!!!</td></tr>
+    {% endfor %}
+</table>
+</body>
+</html>

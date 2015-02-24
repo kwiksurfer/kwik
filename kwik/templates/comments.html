@@ -1,0 +1,21 @@
+<table>
+    {% for comment in post.comments.all %}
+    <tr>
+        <td><a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a> said:</td>
+        <td>{{ comment.comment }}</td>
+        <td>{{ comment.added_at }}</td></tr>
+    {% endfor %}
+</table>
+{% if comment_form %}
+<p><b>Add your comment</b></p>
+{% if comment_form.errors %}
+<p>You made a mistake. Please try again.</p>
+{% endif %}
+<form method="post" action="{% url add_new_comment post.id %}">
+{% csrf_token %}
+<table>
+{{ comment_form.as_table }}
+</table>
+<input type="submit" value="send" />
+</form>
+{% endif %}

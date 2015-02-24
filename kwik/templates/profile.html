@@ -7,18 +7,43 @@
 <body>
 <p><a href="{% url all_users %}">All Users</a></p>
 <h1>{{ page_title }}</h1>
+<p>{% if message %}{{ message }}{% endif %}</p>
+{% if user.is_authenticated %}
+<p>{% if page_title = "My Profile" %}
+        <a href="{% url edit_profile %}">Edit</a>
+        You have {{ user_profile.unread_messages_count }} new message{{ user_profile.unread_messages_count|pluralize }}.<a href="{% url conversations %}">View</a>
+    {% endif %}
+    {% if user.id != this_user.id %}
+        {% if user in friends_list  %}Friends
+        {% else %}
+            {% if request_sent = "to" %}
+                Awaiting request confirmation
+            {% elif request_sent = "from" %}
+                <a href="{{ friendship_request.get_confirm_url }}">Confirm Friend</a> | <a href="{{ friendship_request.get_delete_url }}">Delete Request</a>
+            {% elif request_sent = 0 %}
+                <a href="{% url add_friend user_id %}">Add Friend</a>
+            {% endif %}
+        {% endif %}
+    {% endif %}</p>
+<p><a href="{% url view_requests %}">View Friendship Requests</a></p>
+{% endif %}
 <table>
+    {% if not this_user = user %}
     <tr>
-        <td>Username:</td><td>{{ user.username }}</td>
+        <td><a href="{% url new_message receiver_id=this_user.id %}">Message</a></td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>Username:</td><td>{{ this_user.username }}</td>
     </tr>
     <tr>
-        <td>First Name:</td><td>{{ user.first_name }}</td>
+        <td>First Name:</td><td>{{ this_user.first_name }}</td>
     </tr>
     <tr>
-        <td>Last Name:</td><td>{{ user.last_name }}</td>
+        <td>Last Name:</td><td>{{ this_user.last_name }}</td>
     </tr>
     <tr>
-        <td>Email Address:</td><td>{{ user.email }}</td>
+        <td>Email Address:</td><td>{{ this_user.email }}</td>
     </tr>
     <tr>
         <td>Friends:</td>
@@ -26,10 +51,11 @@
             {% for friend in friends_list %}
                 <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
             {% endfor %}
-            {% for friend in friends_list2 %}
-                <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
-            {% endfor %}
         </td>
+    </tr>
+    <tr>
+        <td>Sex:</td>
+        <td>{{ this_user_profile.sex }}</td>
     </tr>
 </table>
 </body>
