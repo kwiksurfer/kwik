@@ -23,10 +23,10 @@
     {% for message in messages %}
     <tr>
         <td>From <a href="{{ message.sender.get_absolute_url }}">{{ message.sender }}</a></td>
-        <td>To {% for each_user in conversation.users.all %}{% if each_user != message.sender %}<a href="{{ each_user.get_absolute_url }}">{{ each_user }}</a>{% endif %}{% endfor %} </td>
+        <td>To <a href="{{ message.receiver.get_absolute_url }}">{{ message.receiver }}</a></td>
         <td>{{ message.message }}</td>
         <td>Sent on: {{ message.date_sent }}</td>
-        <td>Read: {% if message.seen == True %}Y{% else %}N{% endif %}</td>
+        <td>Read: {{ message.seen }} | {% if message.seen %}Y{% else %}N{% endif %}</td>
     </tr>
     {% endfor %}
 </table>

@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from people.forms import UserChangeForm
 from people.forms import UserCreationForm, AuthenticationForm, UserProfileForm, MessageForm, RequestDeleteForm
 from people.models import UserProfile, FriendshipRequest, Message, Conversation
+from django.db.models import Avg, Sum, Count
 
 def register(request, template_name="register.html"):   # I should remove this view later and add it to the login
     if request.method == 'POST':                        # view. so that both forms may be on the same page.
@@ -43,7 +44,7 @@ def view_profile(request, template_name='profile.html'):
     user_profile = user.get_profile()
     this_user_profile = user_profile
     friends_list = user_profile.friends.all()
-    num_messages = Message.objects.filter(conversation__users__id__exact=user.id, seen=False).count()
+    num_messages = (Message.objects.exclude(sender__id__exact=user.id)).filter(conversation__users__id__exact=user.id, seen=False).count()
     # friends_list2 = user_profile.userprofile_set.all()
     return render_to_response(template_name, locals(), context_instance=RequestContext(request))
 
@@ -70,13 +71,17 @@ def edit_profile(request, template_name="profile-form.html"):
 def all_users(request, template_name='users_list.html'):
     page_title = 'All Users'
     user = request.user
-    users = UserProfile.objects.all()
+    user_profile = user.get_profile()
+    profiles = UserProfile.objects.all()   # returns all userprofiles
+    users = User.objects.all()
     return render_to_response(template_name, locals(), context_instance=RequestContext(request))
 
 @login_required
 def view_user(request, user_id=0, username="", template_name='profile.html'):
     page_title = 'View User'
     user = request.user
+    if int(user_id) == user.id or username == user.username:
+        return HttpResponseRedirect(urlresolvers.reverse('view_profile'))
     user_profile = user.get_profile()
     if not user_id == 0:
         this_user = get_object_or_404(User, pk=user_id)
@@ -269,21 +274,30 @@ def conversation(request, correspondent_id=None, template_name='conversation.htm
             return HttpResponseRedirect(urlresolvers.reverse('conversation',kwargs={'correspondent_id':correspondent_id})) # change this to link to conversation
         else:
             message = "error in message"
-            return HttpResponseRedirect(urlresolvers.reverse('new_message'))
+            return HttpResponseRedirect(request.path)
     else:
         if not correspondent_id == None:
             receiver = User.objects.get(id=correspondent_id)
             form = MessageForm()
         else:
             form = MessageForm()
-    messages = conversation.message_set.all()
-    messages.update(seen=True)
+    messages = conversation.messages.all().order_by('-date_sent')
+    messages.exclude(sender__id__exact=user.id).update(seen=True)
     return render_to_response(template_name, locals(), context_instance=RequestContext(request))
+
+@login_required
+def conversation_by_id(request, conversation_id=None):
+    user = request.user
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    if not user in conversation.users.all():
+        return HttpResponseRedirect(urlresolvers.reverse('conversations'))
+    correspondent_id = conversation.other_user(user).id
+    return HttpResponseRedirect(urlresolvers.reverse('conversation', kwargs={'correspondent_id': correspondent_id}))
 
 @login_required
 def conversations(request, template_name='conversations.html'):
     user = request.user
-    conversations = Conversation.objects.filter(users__id__exact=user.id)
+    conversations = Conversation.objects.filter(users__id__exact=user.id).annotate(message_count=Count('messages'), unread_count=Count('messages'))
     # messages = Message.objects.filter(receiver_id__exact=user.id).filter(sender_id__exact=user.id)#.order_by('-date_sent', 'sender')   # this brings all messages to and from this user and the correspondent
     # distinct_messages = messages.distinct('sender', 'receiver')
     page_title = "Conversations"

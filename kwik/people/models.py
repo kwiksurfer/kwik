@@ -14,7 +14,7 @@ SEX_CHOICES = (
 )
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, unique=True, related_name='user+')
+    user = models.OneToOneField(User, unique=True, related_name='profile')
 
     sex = models.CharField(max_length=1, choices=SEX_CHOICES, default="M")
     #picture = models.ForeignKey(Picture) # CamelCase, with an uppercase first letter
@@ -30,10 +30,15 @@ class UserProfile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return urlresolvers.reverse('people.views.view_user', (), { 'user_id': self.user.pk })
+        # return urlresolvers.reverse('view_user', kwargs={'user_id': self.user.id})
+        return ('view_user_username', (), {'username': self.user.username})
 
     def full_name(self):
         return self.user.first_name + " " + self.user.last_name
+
+    def unread_messages_count(self):
+        conversations = self.user.conversations.filter(messages__seen=False, users__id__exact=self.user.id).distinct()
+        return Message.objects.exclude(sender__id=self.user.id).filter(conversation__in=conversations, seen=False).distinct().count()
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -71,23 +76,39 @@ def add_friend_from_request(sender, instance, ** kwargs):    # called when the r
 pre_delete.connect(add_friend_from_request, sender=FriendshipRequest)
 
 class Conversation(models.Model):
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(User, related_name="conversations")
 
     def __unicode__(self):
         return 'Conversation among ' + ", ".join([this_user.get_profile().full_name() for this_user in self.users.all()])
 
     def get_absolute_url(self):
-        return urlresolvers.reverse('people.views.conversation', (), { 'correspondent_id': self.id, })       # fix_this!!!
+        #return urlresolvers.reverse('people.views.conversation', (), { 'correspondent_id': self.other_user(user), })       # fix_this!!!
+        return urlresolvers.reverse('people.views.conversation_by_id', (), { 'conversation_id': self.id})
+
+    def other_user(self, user):
+        for this_user in self.users.all():
+            if not this_user == user:
+                return this_user
+
+    def unread_messages_count(self, user):
+        return self.messages.exclude(sender__id=user.id).filter(seen=False).count()
 
 class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sen+', editable=False)
-    conversation = models.ForeignKey(Conversation, editable=False)
+    sender = models.ForeignKey(User, related_name='sent', editable=False)
+    conversation = models.ForeignKey(Conversation, editable=False, related_name="messages")
     message = models.TextField(default="")
     seen = models.BooleanField(default=False, editable=False)     # I have to add this. For notifying about, and styling new messages
     date_sent = models.DateTimeField(auto_now_add=True, editable=False)   # compulsory!!!
 
     def __unicode__(self):
-        return 'Message from ' + self.sender.username + ' to ' + self.receiver.username
+        return 'Message from ' + self.sender.username + ' to ' + self.receiver().username
+
+    def receiver(self):
+        sender = self.sender
+        for user in self.conversation.users.all():
+            if not user == sender:
+                receiver = user
+        return receiver
 
 class UserGroup(models.Model):
     name = models.CharField(max_length=128)

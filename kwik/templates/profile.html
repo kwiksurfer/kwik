@@ -11,8 +11,9 @@
 {% if user.is_authenticated %}
 <p>{% if page_title = "My Profile" %}
         <a href="{% url edit_profile %}">Edit</a>
-        You have {{ num_messages }} new message{{ num_messages|pluralize }}.<a href="{% url conversations %}">View</a>
-    {% else %}
+        You have {{ user_profile.unread_messages_count }} new message{{ user_profile.unread_messages_count|pluralize }}.<a href="{% url conversations %}">View</a>
+    {% endif %}
+    {% if user.id != this_user.id %}
         {% if user in friends_list  %}Friends
         {% else %}
             {% if request_sent = "to" %}
@@ -48,9 +49,6 @@
         <td>Friends:</td>
         <td>
             {% for friend in friends_list %}
-                <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
-            {% endfor %}
-            {% for friend in friends_list2 %}
                 <li><a href="{{ friend.get_absolute_url }}">{{ friend.user.first_name }} {{ friend.user.last_name }}</a></li>
             {% endfor %}
         </td>

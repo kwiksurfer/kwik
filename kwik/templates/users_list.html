@@ -6,14 +6,14 @@
 </head>
 <body>
 <h1>{{ page_title }}</h1>
-<table>
+<table border="1">
     {% for this_user in users %}
     <tr>
-        <td>{{ this_user.user.first_name }} {{ this_user.user.last_name }}</td>
+        <td>{{ this_user.first_name }} {{ this_user.last_name }}</td>
         <td><a href="{% url view_user this_user.id %}">View User</a></td>
-        <td>{% if this_user in user.friends %}Friend{% else %}Not Friend{% endif %}</td>
+        <td>{% if this_user.get_profile in user_profile.friends.all %}Friend{% else %}Not Friend{% endif %}</td>
         <td>{{ this_user.username }}</td>
-        <td>{{ this_user.sex }}</td>
+        <td>{{ this_user.get_profile.get_sex_display }}</td>
         <td>{{ this_user.email }}</td>
     </tr>
     {% endfor %}

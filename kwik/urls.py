@@ -8,9 +8,10 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     (r'^',include('people.urls')),
-    (r'^',include('kwiksurfs.urls')),
+    # (r'^posts/',include('kwiksurfs.urls')),
+    (r'^', include('kwiksurfs.urls')),   #, namespace="kwiksurfs")),
 
-	url(r'^$', current_time),
+    url(r'^$', current_time),
     url(r'^say_hello/$',tester),
     # url(r'^kwik/', include('kwik.foo.urls')),
 

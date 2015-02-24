@@ -1,3 +1,4 @@
+from django.core import urlresolvers
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic # for GenericForeignKey. chill for now
@@ -19,8 +20,20 @@ class Post(models.Model):
     comments = generic.GenericRelation('Comment')
     is_deleted = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['-added_at']
+
     def __unicode__(self):
         return 'Post: ' + self.post
+
+    def can_be_viewed_by(self, user):
+        if self.author == user or (self.privacy == 'F' and user.get_profile() in self.author.get_profile().friends.all()) or self.privacy == 'E':
+            return True
+        return False
+
+    def comment_submit_url(self):
+        urlresolvers.reverse('new_comment', {'model':'post', 'object_id':self.id,})
+        pass
 
 
 class Comment(models.Model):
@@ -28,11 +41,16 @@ class Comment(models.Model):
     author = models.ForeignKey(User)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey('content_type', 'object_id')     # change this to kwiksurf
     is_deleted = models.BooleanField(default=False)
+    # added_at = models.DateTimeField(auto_now_add=True)    # why did I forget this guy? ehn?
+
+    class Meta:
+        # ordering = ['added_at']
+        pass
 
     def __unicode__(self):
-        return self.comment
+        return self.author.username + " said: " + self.comment
 
 class Rating(models.Model):
     users = models.ManyToManyField(User)     # quantity is size of this field? if user is here, they cannot rate object again
